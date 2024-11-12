@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Articles</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-900 text-white">
+
+  <!-- Navigation Bar -->
+  <header class="py-6 bg-gray-800">
+    <div class="max-w-screen-xl mx-auto px-4 flex justify-between items-center">
+      <a href="index.html" class="text-2xl font-bold">IKTHEDAR CHOWDHURY</a>
+      <ul class="flex gap-8">
+        <li><a href="index.html" class="hover:text-blue-500">Home</a></li>
+        <li><a href="articles.html" class="text-blue-500">Articles</a></li>
+        <li><a href="projects.html" class="hover:text-blue-500">Projects</a></li>
+        <li><a href="about.html" class="hover:text-blue-500">About</a></li>
+        <li><a href="contact.html" class="hover:text-blue-500">Contact</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Articles Section -->
+  <section class="py-16">
+    <div class="max-w-screen-lg mx-auto px-4">
+      <h2 class="text-4xl font-bold mb-8 text-center">Beyond the Brain Blog Articles</h2>
+      <div id="articles-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-6 bg-gray-800">
+    <div class="max-w-screen-xl mx-auto px-4 text-center text-gray-400">
+      <p>&copy; 2024 Ikthedar. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript to Fetch Articles -->
+  <script>
+    async function fetchArticlesFromRSS() {
+  const rssUrl = "https://beyondthebrainblogs.wordpress.com/feed/";
+
+  const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
+  const data = await response.json();
+
+  if (data.status === 'ok') {
+    const container = document.getElementById("articles-container");
+
+    // Limit to 5 articles (or any other number you prefer)
+    const limitedArticles = data.items.slice(0, 6); 
+
+    limitedArticles.forEach(item => {
+      // Get the categories
+      const categories = item.categories.join(', '); // Categories are an array
+      const featuredImage = item.thumbnail || item.enclosure?.url; // Check if there's a thumbnail or an enclosure image
+
+      const articleCard = `
+        <a href="${item.link}" target="_blank" class="block p-6 bg-gray-800 rounded-lg shadow-lg hover:scale-105 transition-transform">
+          <div class="mb-4">
+            ${featuredImage ? `<img src="${featuredImage}" alt="${item.title}" class="w-full h-48 object-cover rounded-lg mb-4">` : ''}
+            <h3 class="text-2xl font-semibold mb-2">${item.title}</h3>
+            <p class="text-gray-400 mb-4">${item.description.substring(0, 100)}...</p>
+            <p class="text-gray-500 text-sm">Categories: ${categories}</p>
+          </div>
+          <div class="mt-4 flex items-center text-blue-500">
+            <span>Read More</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-8h6a1 1 0 110 2H9a1 1 0 110-2zm4-5a1 1 0 011 1v2a1 1 0 11-2 0V6a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </a>
+      `;
+      container.innerHTML += articleCard;
+    });
+  } else {
+    console.error("Error fetching RSS data", data);
+    document.getElementById("articles-container").innerHTML = "<p class='text-gray-500'>Unable to fetch articles at this time.</p>";
+  }
+}
+
+fetchArticlesFromRSS();
+  </script>
+</body>
+</html>
